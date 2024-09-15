@@ -10,7 +10,6 @@ public class RegistrationForm extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // Создаем поля ввода
         TextField usernameField = new TextField();
         usernameField.setPromptText("Имя пользователя");
 
@@ -19,7 +18,6 @@ public class RegistrationForm extends Application {
 
         Button registerButton = new Button("Регистрация");
 
-        // Обработка нажатия кнопки
         registerButton.setOnAction(e -> {
             String username = usernameField.getText();
             String password = passwordField.getText();
@@ -34,11 +32,10 @@ public class RegistrationForm extends Application {
 
                 System.out.println("Пользователь зарегистрирован: " + username);
 
-                // Автоматический вход после регистрации
                 MainDashboard dashboard = new MainDashboard(newUser);
                 try {
                     dashboard.start(new Stage());
-                    primaryStage.close(); // Закрываем окно регистрации
+                    primaryStage.close();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -49,13 +46,12 @@ public class RegistrationForm extends Application {
             MainApp mainApp = new MainApp();
             try {
                 mainApp.start(new Stage());
-                primaryStage.close(); // Закрываем окно регистрации
+                primaryStage.close();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         });
 
-        // Добавляем кнопку в интерфейс
         VBox vbox = new VBox(10, usernameField, passwordField, registerButton, backButton);
 
         vbox.setStyle("-fx-padding: 20; -fx-alignment: center;");
@@ -68,7 +64,6 @@ public class RegistrationForm extends Application {
         scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
     }
 
-    // Метод для отображения сообщений об ошибках
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);

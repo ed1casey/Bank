@@ -10,7 +10,6 @@ public class LoginForm extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // Создаем поля ввода
         TextField usernameField = new TextField();
         usernameField.setPromptText("Имя пользователя");
 
@@ -19,7 +18,6 @@ public class LoginForm extends Application {
 
         Button loginButton = new Button("Войти");
 
-        // Обработка нажатия кнопки
         loginButton.setOnAction(e -> {
             String username = usernameField.getText();
             String password = passwordField.getText();
@@ -31,7 +29,7 @@ public class LoginForm extends Application {
                 MainDashboard dashboard = new MainDashboard(user);
                 try {
                     dashboard.start(new Stage());
-                    primaryStage.close(); // Закрываем окно логина
+                    primaryStage.close();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -45,7 +43,7 @@ public class LoginForm extends Application {
             MainApp mainApp = new MainApp();
             try {
                 mainApp.start(new Stage());
-                primaryStage.close(); // Закрываем окно регистрации
+                primaryStage.close();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

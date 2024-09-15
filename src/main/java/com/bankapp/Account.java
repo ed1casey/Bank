@@ -10,11 +10,9 @@ public class Account {
     }
 
     private String generateUniqueNumber() {
-        // Генерация уникального номера счёта
         return "ACCT" + System.nanoTime();
     }
 
-    // Геттеры и сеттеры
     public String getAccountNumber() {
         return accountNumber;
     }

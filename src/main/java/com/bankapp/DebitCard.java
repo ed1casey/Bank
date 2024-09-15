@@ -7,16 +7,14 @@ public class DebitCard {
 
     public DebitCard() {
         this.cardNumber = generateUniqueNumber();
-        this.expiryDate = "12/25"; // Пример даты истечения
+        this.expiryDate = "12/25";
         this.balance = 0.0;
     }
 
     private String generateUniqueNumber() {
-        // Генерация уникального номера карты
         return "CARD" + System.nanoTime();
     }
 
-    // Геттеры и сеттеры
     public String getCardNumber() {
         return cardNumber;
     }
@@ -38,7 +36,7 @@ public class DebitCard {
             balance -= amount;
             return true;
         } else {
-            return false; // Недостаточно средств
+            return false;
         }
     }
 }

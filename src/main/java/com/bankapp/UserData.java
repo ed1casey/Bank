@@ -13,7 +13,6 @@ public class UserData {
     private static final String DATA_FILE = "users.json";
     private static Gson gson = new Gson();
 
-    // Загрузка пользователей из файла
     public static void loadUsers() {
         try (Reader reader = new FileReader(DATA_FILE)) {
             Type userListType = new TypeToken<ArrayList<User>>(){}.getType();
@@ -23,14 +22,12 @@ public class UserData {
                 users = new ArrayList<>();
             }
         } catch (FileNotFoundException e) {
-            // Файл не найден, начинаем с пустого списка пользователей
             users = new ArrayList<>();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // Сохранение пользователей в файл
     public static void saveUsers() {
         try (Writer writer = new FileWriter(DATA_FILE)) {
             gson.toJson(users, writer);
@@ -53,7 +50,6 @@ public class UserData {
         return null;
     }
 
-    // Добавим метод для проверки существования пользователя
     public static boolean userExists(String username) {
         for (User user : users) {
             if (user.getUsername().equals(username)) {

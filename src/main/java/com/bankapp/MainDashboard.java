@@ -57,17 +57,15 @@ public class MainDashboard {
             double interest = currentBalance * 0.01;
             currentUser.getSavingsAccount().deposit(interest);
 
-            // Обновляем интерфейс в JavaFX-потоке
             Platform.runLater(() -> {
                 accountBalanceLabel.setText("Баланс: $" + String.format("%.2f", currentUser.getSavingsAccount().getBalance()));
             });
 
-            // Сохраняем обновлённые данные пользователя
             UserData.saveUsers();
 
-        }, 60, 60, TimeUnit.SECONDS); // Первое начисление через 60 секунд, затем каждые 60 секунд
+        }, 60, 60, TimeUnit.SECONDS);
 
-        // Добавляем обработчик события закрытия окна, чтобы остановить планировщик
+        // обработчик события закрытия окна
         primaryStage.setOnCloseRequest(e -> {
             scheduler.shutdownNow();
         });
@@ -135,7 +133,6 @@ public class MainDashboard {
         VBox cardBox = new VBox(10, cardLabel, cardNumberLabel, cardExpiryLabel, cardBalanceLabel, cardDepositBox, cardWithdrawBox);
         cardBox.setStyle("-fx-padding: 15; -fx-border-style: solid inside; -fx-border-width: 2; -fx-border-color: #8B0000;");
 
-        // Основное размещение
         HBox infoBox = new HBox(20, accountBox, cardBox);
         infoBox.setStyle("-fx-alignment: center;");
 

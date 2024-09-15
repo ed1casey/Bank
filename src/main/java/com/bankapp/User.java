@@ -13,7 +13,6 @@ public class User {
         this.debitCard = new DebitCard();
     }
 
-    // Геттеры и сеттеры
     public String getUsername() {
         return username;
     }
