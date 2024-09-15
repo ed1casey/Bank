@@ -1,15 +1,21 @@
 package com.bankapp;
 
-import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.stage.Stage;
 
-public class RegistrationForm extends Application {
+public class RegistrationForm {
 
-    @Override
-    public void start(Stage primaryStage) {
+    private SceneController sceneController;
+
+    public RegistrationForm(SceneController sceneController) {
+        this.sceneController = sceneController;
+        createScene();
+    }
+
+    private void createScene() {
+        // Создаем поля ввода
         TextField usernameField = new TextField();
         usernameField.setPromptText("Имя пользователя");
 
@@ -17,7 +23,9 @@ public class RegistrationForm extends Application {
         passwordField.setPromptText("Пароль");
 
         Button registerButton = new Button("Регистрация");
+        Button backButton = new Button("Назад");
 
+        // Обработка нажатия кнопки "Регистрация"
         registerButton.setOnAction(e -> {
             String username = usernameField.getText();
             String password = passwordField.getText();
@@ -31,37 +39,24 @@ public class RegistrationForm extends Application {
                 UserData.addUser(newUser);
 
                 System.out.println("Пользователь зарегистрирован: " + username);
-
-                MainDashboard dashboard = new MainDashboard(newUser);
-                try {
-                    dashboard.start(new Stage());
-                    primaryStage.close();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+                MainDashboard dashboard = new MainDashboard(sceneController, newUser);
+                sceneController.activate("dashboard");
             }
         });
-        Button backButton = new Button("Назад");
+
+        // Переход назад к окну логина
         backButton.setOnAction(e -> {
-            MainApp mainApp = new MainApp();
-            try {
-                mainApp.start(new Stage());
-                primaryStage.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            sceneController.activate("login");
         });
 
         VBox vbox = new VBox(10, usernameField, passwordField, registerButton, backButton);
-
-        vbox.setStyle("-fx-padding: 20; -fx-alignment: center;");
+        vbox.setAlignment(Pos.CENTER);
+        vbox.setStyle("-fx-padding: 20;");
 
         Scene scene = new Scene(vbox, 300, 200);
 
-        primaryStage.setTitle("Регистрация");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-        scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+        // Добавляем сцену в контроллер
+        sceneController.addScene("registration", scene);
     }
 
     private void showAlert(String title, String message) {
@@ -71,9 +66,4 @@ public class RegistrationForm extends Application {
         alert.setContentText(message);
         alert.showAndWait();
     }
-
-    public static void main(String[] args) {
-        launch(args);
-    }
 }
-

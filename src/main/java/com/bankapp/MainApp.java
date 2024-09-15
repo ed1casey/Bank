@@ -1,46 +1,35 @@
 package com.bankapp;
 
 import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 public class MainApp extends Application {
 
+    private SceneController sceneController;
+
     @Override
     public void start(Stage primaryStage) {
 
+        // Загрузка данных пользователей
         UserData.loadUsers();
 
-        Button loginButton = new Button("Войти");
-        Button registerButton = new Button("Регистрация");
+        // Инициализируем SceneController
+        sceneController = new SceneController(primaryStage);
 
-        loginButton.setOnAction(e -> {
-            LoginForm loginForm = new LoginForm();
-            try {
-                loginForm.start(new Stage());
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
+        // Создаём и добавляем сцены
+        new LoginForm(sceneController);
+        new RegistrationForm(sceneController);
 
-        registerButton.setOnAction(e -> {
-            RegistrationForm regForm = new RegistrationForm();
-            try {
-                regForm.start(new Stage());
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
+        // Активируем начальную сцену (логин)
+        sceneController.activate("login");
 
-        VBox vbox = new VBox(10, loginButton, registerButton);
-        vbox.setStyle("-fx-padding: 20; -fx-alignment: center;");
-
-        Scene scene = new Scene(vbox, 200, 150);
-
-        primaryStage.setTitle("Добро пожаловать");
-        primaryStage.setScene(scene);
+        // Настраиваем основное окно
+        primaryStage.setTitle("Банковское приложение");
+        primaryStage.setResizable(false);
         primaryStage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }

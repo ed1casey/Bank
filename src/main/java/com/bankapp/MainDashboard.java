@@ -1,26 +1,29 @@
 package com.bankapp;
 
+import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.stage.Stage;
 
-import javafx.application.Platform;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class MainDashboard {
 
+    private SceneController sceneController;
     private User currentUser;
     private ScheduledExecutorService scheduler;
 
-    public MainDashboard(User user) {
+    public MainDashboard(SceneController sceneController, User user) {
+        this.sceneController = sceneController;
         this.currentUser = user;
+        createScene();
     }
 
-    public void start(Stage primaryStage) {
-        // Заголовки
+    private void createScene() {
+        // Создаем элементы интерфейса
         Label welcomeLabel = new Label("Добро пожаловать, " + currentUser.getUsername() + "!");
         welcomeLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
 
@@ -30,7 +33,6 @@ public class MainDashboard {
         Label accountNumberLabel = new Label("Номер счёта: " + currentUser.getSavingsAccount().getAccountNumber());
         Label accountBalanceLabel = new Label("Баланс: $" + String.format("%.2f", currentUser.getSavingsAccount().getBalance()));
 
-        // Поле для пополнения счёта
         TextField depositField = new TextField();
         depositField.setPromptText("Сумма пополнения");
         Button depositButton = new Button("Пополнить");
@@ -42,32 +44,13 @@ public class MainDashboard {
                     currentUser.getSavingsAccount().deposit(amount);
                     accountBalanceLabel.setText("Баланс: $" + String.format("%.2f", currentUser.getSavingsAccount().getBalance()));
                     depositField.clear();
+                    UserData.saveUsers();
                 } else {
                     showAlert("Ошибка", "Введите положительную сумму.");
                 }
             } catch (NumberFormatException ex) {
                 showAlert("Ошибка", "Введите корректную сумму.");
             }
-        });
-
-        scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(() -> {
-            // Начисление 1% к балансу
-            double currentBalance = currentUser.getSavingsAccount().getBalance();
-            double interest = currentBalance * 0.01;
-            currentUser.getSavingsAccount().deposit(interest);
-
-            Platform.runLater(() -> {
-                accountBalanceLabel.setText("Баланс: $" + String.format("%.2f", currentUser.getSavingsAccount().getBalance()));
-            });
-
-            UserData.saveUsers();
-
-        }, 60, 60, TimeUnit.SECONDS);
-
-        // обработчик события закрытия окна
-        primaryStage.setOnCloseRequest(e -> {
-            scheduler.shutdownNow();
         });
 
         HBox depositBox = new HBox(10, depositField, depositButton);
@@ -82,7 +65,6 @@ public class MainDashboard {
         Label cardExpiryLabel = new Label("Срок действия: " + currentUser.getDebitCard().getExpiryDate());
         Label cardBalanceLabel = new Label("Баланс: $" + String.format("%.2f", currentUser.getDebitCard().getBalance()));
 
-        // Поля для пополнения и снятия
         TextField cardDepositField = new TextField();
         cardDepositField.setPromptText("Сумма пополнения");
         Button cardDepositButton = new Button("Пополнить");
@@ -94,7 +76,7 @@ public class MainDashboard {
                     currentUser.getDebitCard().deposit(amount);
                     cardBalanceLabel.setText("Баланс: $" + String.format("%.2f", currentUser.getDebitCard().getBalance()));
                     cardDepositField.clear();
-                    UserData.saveUsers(); // Сохраняем данные
+                    UserData.saveUsers();
                 } else {
                     showAlert("Ошибка", "Введите положительную сумму.");
                 }
@@ -115,7 +97,7 @@ public class MainDashboard {
                     if (success) {
                         cardBalanceLabel.setText("Баланс: $" + String.format("%.2f", currentUser.getDebitCard().getBalance()));
                         cardWithdrawField.clear();
-                        UserData.saveUsers(); // Сохраняем данные
+                        UserData.saveUsers();
                     } else {
                         showAlert("Ошибка", "Недостаточно средств на карте.");
                     }
@@ -133,18 +115,42 @@ public class MainDashboard {
         VBox cardBox = new VBox(10, cardLabel, cardNumberLabel, cardExpiryLabel, cardBalanceLabel, cardDepositBox, cardWithdrawBox);
         cardBox.setStyle("-fx-padding: 15; -fx-border-style: solid inside; -fx-border-width: 2; -fx-border-color: #8B0000;");
 
+        // Размещение элементов
         HBox infoBox = new HBox(20, accountBox, cardBox);
-        infoBox.setStyle("-fx-alignment: center;");
+        infoBox.setAlignment(Pos.CENTER);
 
-        VBox mainLayout = new VBox(20, welcomeLabel, infoBox);
-        mainLayout.setStyle("-fx-padding: 30; -fx-background-color: #F5F5F5; -fx-alignment: center;");
+        // Кнопка выхода из системы
+        Button logoutButton = new Button("Выйти");
+        logoutButton.setOnAction(e -> {
+            if (scheduler != null && !scheduler.isShutdown()) {
+                scheduler.shutdownNow();
+            }
+            sceneController.activate("login");
+        });
+
+        VBox mainLayout = new VBox(20, welcomeLabel, infoBox, logoutButton);
+        mainLayout.setAlignment(Pos.CENTER);
+        mainLayout.setStyle("-fx-padding: 30; -fx-background-color: #F5F5F5;");
 
         Scene scene = new Scene(mainLayout, 700, 400);
 
-        primaryStage.setTitle("Банковское приложение");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-        scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+        // Добавляем сцену в контроллер
+        sceneController.addScene("dashboard", scene);
+
+        // Запускаем планировщик для начисления процентов
+        scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(() -> {
+            double currentBalance = currentUser.getSavingsAccount().getBalance();
+            double interest = currentBalance * 0.01;
+            currentUser.getSavingsAccount().deposit(interest);
+
+            Platform.runLater(() -> {
+                accountBalanceLabel.setText("Баланс: $" + String.format("%.2f", currentUser.getSavingsAccount().getBalance()));
+            });
+
+            UserData.saveUsers();
+
+        }, 60, 60, TimeUnit.SECONDS);
     }
 
     private void showAlert(String title, String message) {
