@@ -1,0 +1,17 @@
+.root {
+    -fx-font-family: 'Arial';
+}
+
+.label {
+    -fx-text-fill: #2F4F4F;
+}
+
+.button {
+    -fx-background-color: #8B0000;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+}
+
+.text-field {
+    -fx-border-color: #8B0000;
+}
